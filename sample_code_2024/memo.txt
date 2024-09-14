@@ -1,0 +1,59 @@
+<opencv(c++)を含んだプログラムを,makeでコンパイルできるようにするための設定>
+
+step1. カレントディレクトリ直下にて以下のコマンドを上から順に実行
+※ opencvが既にインストールしてある場合は, step1 をしなくてもよい
+===============================================================================================
+$ sudo apt update && sudo apt install -y cmake g++ wget unzip
+$ wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip
+$ unzip opencv.zip
+
+$ mkdir -p build && cd build
+$ cmake  ../opencv-4.x
+$ cmake --build .
+
+$ sudo apt-get install build-essential
+$ sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+
+$ cd
+$ git clone https://github.com/opencv/opencv.git
+$ cd ~/opencv
+$ mkdir build
+$ cd build
+
+$ cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local ..
+$ make -j7
+$ sudo make install
+===============================================================================================
+
+
+step2. /usr/local/lib直下にpkgconfig（ディレクトリ）を作成
+$ sudo mkdir /usr/local/lib/pkgconfig
+
+
+step3-1. pkgconfig直下にopencv.pc（ファイル）をvimエディターで作成
+$ sudo vim /usr/local/lib/pkgconfig/opencv.pc
+
+step3-2. vimエディターで開かれたopencv.pcファイルの中に,以下の内容を記載
+※バージョンの項目は各自で編集すること
+==========================================================
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir_old=${prefix}/include/opencv4/opencv2
+includedir_new=${prefix}/include/opencv4
+Name: OpenCV
+Description: Open Source Computer Vision Library
+Version: 4.7.0-dev
+Libs: -L${exec_prefix}/lib -lopencv_dnn -lopencv_gapi -lopencv_highgui -lopencv_ml -lopencv_objdetect -lopencv_photo -lopencv_stitching -lopencv_video -lopencv_calib3d -lopencv_features2d -lopencv_flann -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lopencv_core
+Libs.private: -ldl -lm -lpthread -lrt
+Cflags: -I${includedir_old} -I${includedir_new}
+==========================================================
+※コピーしたら,  Escキーでビジュアルモード→:wq  と入力し保存する
+
+step3-3. 以下のコマンドを実行
+$ sudo ldconfig
+
+step4. <opencv(c++) starter kit with make>ディレクトリの直下で以下を実行・マッチング処理の動作確認
+$ make clean
+$ make
+$ source exe.sh
