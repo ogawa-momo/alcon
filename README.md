@@ -1,6 +1,9 @@
 # Github の使い方
 ## **初めにやること**
 ```
+cd
+```
+```
 git clone https://github.com/ogawa-momo/alcon.git
 ```
 無理だったらこっち
