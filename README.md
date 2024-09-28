@@ -1,7 +1,11 @@
 # Github の使い方
 ## **初めにやること**
 ```
-$ git clone git@github.com:ogawa-momo/alcon.git
+$ git clone https://github.com/ogawa-momo/alcon.git
+```
+無理だったらこっち
+```
+$ git clone git@momo:ogawa-momo/alcon.git
 ```
 <br>
 
