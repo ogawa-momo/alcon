@@ -3,6 +3,10 @@
 ```
 $ git clone https://github.com/ogawa-momo/alcon.git
 ```
+無理だったらこっち
+```
+$ git clone git@momo:ogawa-momo/alcon.git
+```
 <br>
 
 ## 2回目の作業以降はここから
