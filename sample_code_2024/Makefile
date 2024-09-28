@@ -7,8 +7,8 @@ SRCS=$(wildcard $(SRC_DIR)/*.cpp)
 OBJS=$(subst $(SRC_DIR),$(BUILD_DIR),$(SRCS:.cpp=.o))
 CVINC=`pkg-config --cflags opencv`
 CVLIB=`pkg-config --libs opencv`
-CXXFLAGS += $(shell pkg-config --cflags opencv4)
-LDFLAGS += $(shell pkg-config --libs opencv4)
+# CXXFLAGS += $(shell pkg-config --cflags opencv4)
+# LDFLAGS += $(shell pkg-config --libs opencv4)
 
 all: $(BUILD_DIR) $(TARGET)
 
