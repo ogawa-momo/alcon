@@ -49,6 +49,48 @@ cv::Mat tempgrayskale(unsigned char temp[CHANNEL][TMP_SIZE_H][TMP_SIZE_W]){
     return temp_gray;
 }
 
+cv::Mat temprate(cv::Mat temp_gray){
+
+    cv::Mat value4(TMP_SIZE_H, TMP_SIZE_W, CV_8UC1);
+    cv::Mat fea_temp(TMP_SIZE_H, TMP_SIZE_W, CV_8UC1);
+    int i, j, p, count;
+
+    //グレースケールのテンプレート画像を2値化
+    for( j = 0; j < TMP_SIZE_H; j++ ){
+
+        for( i = 0; i < TMP_SIZE_W; i++ ){
+
+            if(temp_gray.at<uchar>(j, i) < 130){
+                value4.at<uchar>(j,i) = 0;
+            }
+            else{
+                value4.at<uchar>(j,i) = 255;
+            }
+            
+        }
+    }
+
+    count = 0;
+
+    //テンプレートの2値化画像から縦に画素が続いている箇所を抽出
+    for(j = 0; j < TMP_SIZE_W; j++){
+        for(i = 0; i < TMP_SIZE_H; i++){
+            if(value4.at<uchar>(i, j) == 0){
+                count ++;
+            }else{
+                if(count > 3 && count < 10 && value4.at<uchar>(i - count / 2, j - 1) == 255){
+                    for(p = 0; p < count; p++){
+                        fea_temp.at<uchar>(i - p, j) = 255;
+                    }
+                }
+                count = 0;
+            }
+        }
+    }
+
+    return fea_temp;
+}
+
 Point matching(unsigned char input[CHANNEL][INPUT_SIZE_H][INPUT_SIZE_W], unsigned char temp[CHANNEL][TMP_SIZE_H][TMP_SIZE_W] ){
 
     // 変数の宣言
@@ -901,11 +943,168 @@ if(TMP_SIZE_W==212){
 
    }
 
+   if(TMP_SIZE_W == 117){
+    // 変数の宣言
+    int i, j, p ,q;
+    int red, blue, green, count, ans, num;
+    double sum;                                                         // カウンター
+    Point out_point;                                                    // 検出位置
 
+    cv::Mat value1(INPUT_SIZE_H, INPUT_SIZE_W, CV_8UC1);
+    cv::Mat value2(INPUT_SIZE_H, INPUT_SIZE_W, CV_8UC1);
+    cv::Mat fea_input(INPUT_SIZE_H, INPUT_SIZE_W, CV_8UC1);
 
+    // 初期化
+    out_point.x = out_point.y = 0;
 
+    //入力画像のグレースケール
+    cv::Mat enter_gray = entergrayskale(input);
+    //テンプレート画像のグレースケール
+    cv::Mat temp_gray = tempgrayskale(temp);
 
+    cv::Mat fea_temp = temprate(temp_gray);
 
+    //画像中で青色成分が最も多い画素を選択した2値化画像を作成し，画像中で札がどの位置にあるかを示す
+
+    for( j = 0; j < INPUT_SIZE_H; j++ ){
+
+        for( i = 0; i < INPUT_SIZE_W; i++ ){
+
+            blue = input[0][j][i];//青成分
+            green = input[1][j][i];//緑成分
+            red = input[2][j][i];//赤成分
+
+            if(blue > red && blue > green){
+                value1.at<uchar>(j,i) = 255;
+            }else{
+                value1.at<uchar>(j,i) = 0;
+            }
+            
+        }
+    }
+
+    /*for( j = 0; j < INPUT_SIZE_H; j++ ){
+
+        for( i = 0; i < INPUT_SIZE_W; i++ ){
+
+            if(enter_gray.at<uchar>(j,i) > 120){
+                value1.at<uchar>(j,i) = 255;
+            }else{
+                value1.at<uchar>(j,i) = 0;
+            }
+            
+        }
+    }*/
+
+    //入力画像に平滑化フィルタをかける
+    for( j = 0; j < INPUT_SIZE_H; j++ ){
+
+        for( i = 0; i < INPUT_SIZE_W; i++ ){
+            
+                // sumの初期化
+                sum = 0.0;
+
+                for( q = 0; q < 11; q++ ){
+
+                    for( p = 0; p < 11 ; p++ ){
+
+                        sum += value1.at<uchar>(j+q,i+p) / 121;
+                    
+                    }
+                }
+
+                if((sum == 0 && enter_gray.at<uchar>(j,i) < 130) || sum > 10){
+                    value2.at<uchar>(j,i) = 0;
+                }else{
+                    value2.at<uchar>(j,i) = 255;
+                }
+            
+        }
+    }
+
+    //cv::imwrite("value01.png", value1);
+    //cv::imwrite("value02.png", value2);
+    //cv::imwrite("enter_gray.png", enter_gray);
+
+ //====================================================================================
+
+    count = 0;
+
+    //2値化の入力画像から縦に画素が続いている箇所を抽出
+    for(j = 0; j < INPUT_SIZE_W; j++){
+        for(i = 0; i < INPUT_SIZE_H; i++){
+
+            fea_input.at<uchar>(i, j) = 0;
+
+            if(value2.at<uchar>(i, j) == 0){
+                count ++;
+                
+            }else{
+                if(count > 3 && count < 10 && value2.at<uchar>(i - count / 2, j - 1) == 255){
+                //if(count > 3 && count < 10 && value2.at<uchar>(i - count / 2, j - 1) == 255){
+                    for(p = 0; p < count; p++){
+                        fea_input.at<uchar>(i - p, j) = 255;
+                    }
+                }
+                count = 0;
+            }
+        }
+    }
+
+    //cv::imwrite("fea_input.png", fea_input);
+    //cv::imwrite("fea_temp.png", fea_temp);
+
+    //2枚の特徴量を抽出した画像からマッチングを行う
+    ans = 0;
+    count = 0;
+    
+    for(j = 0; j < INPUT_SIZE_H - TMP_SIZE_H; j++){
+        for(i = 0; i < INPUT_SIZE_W - TMP_SIZE_W; i++){
+
+            //札の領域内のみ
+            if(value2.at<uchar>(j, i) == 255){
+
+                num = 0;
+                count = 0;
+
+                for(p = 0; p < TMP_SIZE_H; p++){
+                    for(q = 0; q < TMP_SIZE_W; q++){
+
+                        if(fea_input.at<uchar>(j + q, i + p) == 255 && fea_temp.at<uchar>(q, p) == 255){
+                            count++;
+                        }
+
+                        if(value2.at<uchar>(j, i) == 0){
+                            num++;
+                        }
+                    }
+                }
+
+                if(count > ans){
+                    ans = count;
+                    out_point.x = i;
+                    out_point.y = j;
+                }
+
+                if(num > 500){
+                    i += TMP_SIZE_W;
+                }else if(num > 250){
+                    i += TMP_SIZE_W / 2;
+                }
+
+                if(ans > 70){
+                    break;
+                }
+            }
+
+        }
+
+    }
+
+    return out_point;
+
+   }
+   
 
 
 }
