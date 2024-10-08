@@ -946,7 +946,7 @@ if(TMP_SIZE_W==212){
    if(TMP_SIZE_W == 117){
     // 変数の宣言
     int i, j, p ,q;
-    int red, blue, green, count, ans, num;
+    int red, blue, green, count, ans, num, num1, num2;
     double sum;                                                         // カウンター
     Point out_point;                                                    // 検出位置
 
@@ -1057,12 +1057,15 @@ if(TMP_SIZE_W==212){
     //2枚の特徴量を抽出した画像からマッチングを行う
     ans = 0;
     count = 0;
-    
+
+    num1 = TMP_SIZE_H * TMP_SIZE_W * 0.6; 
+    num2 = TMP_SIZE_H * TMP_SIZE_W * 0.4;
+
     for(j = 0; j < INPUT_SIZE_H - TMP_SIZE_H; j++){
         for(i = 0; i < INPUT_SIZE_W - TMP_SIZE_W; i++){
 
             //札の領域内のみ
-            if(value2.at<uchar>(j, i) == 255){
+            if(value2.at<uchar>(j + TMP_SIZE_H / 2, i + TMP_SIZE_W / 2) == 255){
 
                 num = 0;
                 count = 0;
@@ -1086,9 +1089,9 @@ if(TMP_SIZE_W==212){
                     out_point.y = j;
                 }
 
-                if(num > 500){
+                if(num > num1){
                     i += TMP_SIZE_W;
-                }else if(num > 250){
+                }else if(num > num2){
                     i += TMP_SIZE_W / 2;
                 }
 
