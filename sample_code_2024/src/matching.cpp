@@ -946,7 +946,7 @@ if(TMP_SIZE_W==212){
    if(TMP_SIZE_W == 117){
     // 変数の宣言
     int i, j, p ,q;
-    int red, blue, green, count, ans, num, num1, num2;
+    int red, blue, green, count, ans, num, num0, num1, num2;
     double sum;                                                         // カウンター
     Point out_point;                                                    // 検出位置
 
@@ -983,19 +983,6 @@ if(TMP_SIZE_W==212){
         }
     }
 
-    /*for( j = 0; j < INPUT_SIZE_H; j++ ){
-
-        for( i = 0; i < INPUT_SIZE_W; i++ ){
-
-            if(enter_gray.at<uchar>(j,i) > 120){
-                value1.at<uchar>(j,i) = 255;
-            }else{
-                value1.at<uchar>(j,i) = 0;
-            }
-            
-        }
-    }*/
-
     //入力画像に平滑化フィルタをかける
     for( j = 0; j < INPUT_SIZE_H; j++ ){
 
@@ -1022,10 +1009,6 @@ if(TMP_SIZE_W==212){
         }
     }
 
-    //cv::imwrite("value01.png", value1);
-    //cv::imwrite("value02.png", value2);
-    //cv::imwrite("enter_gray.png", enter_gray);
-
  //====================================================================================
 
     count = 0;
@@ -1041,7 +1024,6 @@ if(TMP_SIZE_W==212){
                 
             }else{
                 if(count > 3 && count < 10 && value2.at<uchar>(i - count / 2, j - 1) == 255){
-                //if(count > 3 && count < 10 && value2.at<uchar>(i - count / 2, j - 1) == 255){
                     for(p = 0; p < count; p++){
                         fea_input.at<uchar>(i - p, j) = 255;
                     }
@@ -1050,9 +1032,6 @@ if(TMP_SIZE_W==212){
             }
         }
     }
-
-    //cv::imwrite("fea_input.png", fea_input);
-    //cv::imwrite("fea_temp.png", fea_temp);
 
     //2枚の特徴量を抽出した画像からマッチングを行う
     ans = 0;
@@ -1067,47 +1046,67 @@ if(TMP_SIZE_W==212){
             //札の領域内のみ
             if(value2.at<uchar>(j + TMP_SIZE_H / 2, i + TMP_SIZE_W / 2) == 255){
 
-                num = 0;
-                count = 0;
+                num0 = 0;
 
-                for(p = 0; p < TMP_SIZE_H; p++){
-                    for(q = 0; q < TMP_SIZE_W; q++){
+                for(p = 0; p < 20; p++){
 
-                        if(fea_input.at<uchar>(j + q, i + p) == 255 && fea_temp.at<uchar>(q, p) == 255){
-                            count++;
-                        }
+                    if(value2.at<uchar>(j - 10, i - 10 + p) == 255){
+                        num0 ++;
+                    }
 
-                        if(value2.at<uchar>(j, i) == 0){
-                            num++;
-                        }
+                    if(value2.at<uchar>(j - 10 + p, i + 10) == 255){
+                        num0 ++;
+                    }
+
+                    if(value2.at<uchar>(j + 10, i + 10 - p) == 255){
+                        num0 ++;
+                    }
+
+                    if(value2.at<uchar>(j + 10 - p, i - 10) == 255){
+                        num0 ++;
                     }
                 }
 
-                if(count > ans){
-                    ans = count;
-                    out_point.x = i;
-                    out_point.y = j;
-                }
+                if(num0 > 20){
 
-                if(num > num1){
-                    i += TMP_SIZE_W;
-                }else if(num > num2){
-                    i += TMP_SIZE_W / 2;
-                }
+                    num = 0;
+                    count = 0;
 
-                if(ans > 70){
-                    break;
+                    for(p = 0; p < TMP_SIZE_H; p++){
+                        for(q = 0; q < TMP_SIZE_W; q++){
+
+                            if(fea_input.at<uchar>(j + q, i + p) == 255 && fea_temp.at<uchar>(q, p) == 255){
+                                count++;
+                            }
+
+                            if(value2.at<uchar>(j, i) == 0){
+                                num++;
+                            }
+                        }
+                    }
+
+                    if(count > ans){
+                        ans = count;
+                        out_point.x = i;
+                        out_point.y = j;
+                    }
+
+                    if(ans > 100){
+                        break;
+                    }
+                
+                    if(num > num1){
+                        i += TMP_SIZE_W / 2;
+                    }else if(num > num2){
+                        i += TMP_SIZE_W / 4;
+                    }
                 }
             }
-
         }
-
+        if(ans > 100){
+            break;
+        }
     }
-
     return out_point;
-
    }
-   
-
-
 }
