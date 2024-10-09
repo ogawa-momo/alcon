@@ -611,6 +611,18 @@ if(TMP_SIZE_W==212){
   }
 
 
+            blue = input[0][j][i];//青成分
+            green = input[1][j][i];//緑成分
+            red = input[2][j][i];//赤成分
 
+            if(blue > red && blue > green){
+                value1.at<uchar>(j,i) = 255;
+            }else{
+                value1.at<uchar>(j,i) = 0;
+            }
+            
+        }
+    }
 }
+
 
