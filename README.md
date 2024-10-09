@@ -4,12 +4,18 @@
 cd
 ```
 ```
-git clone https://github.com/ogawa-momo/alcon.git
+git clone git@github.com:ogawa-momo/alcon.git 
 ```
-無理だったらこっち
+
+エラーが出た場合，sshキーの設定が出来ていない
 ```
-git clone git@momo:ogawa-momo/alcon.git
+ssh-keygen -t rsa
 ```
+```
+cat ~/.ssh/id_rsa.pub 
+```
+ターミナルの出力をコピーしてGithubに張り付ける
+<br>
 <br>
 
 ## 2回目の作業以降はここから
