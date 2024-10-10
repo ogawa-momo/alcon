@@ -14,7 +14,9 @@ ssh-keygen -t rsa
 ```
 cat ~/.ssh/id_rsa.pub 
 ```
-ターミナルの出力をコピーしてGithubに張り付ける
+ターミナルの出力をコピーしてGithubに移動する．
+右上のアイコンをクリック> Settings > SSH and GPG keys
+に移動して，右上の"New SSH key"ボタンを推して，Key部分に貼り付ける．
 <br>
 <br>
 
@@ -113,3 +115,10 @@ git branch -D 該当ブランチ
 ``
 git branch -D ogawa/fix_README.md
 ``
+
+## それでもうまくいかない場合 1
+```
+git config user.name "自分の名前"
+git config user.email "設定したmail"
+```
+``git config --global``のようにオプションを設定するとPC全体の設定を変更できる．
